@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TikTok Onboarding Reward Activity</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      overflow: hidden;
+    }
+    #initial-screen, #wheel-screen, #result-screen, #final-screen, #already-screen {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    h1 {
+      color: #FE2C55;
+      font-size: 1.5em;
+      padding: 0 10px;
+    }
+    p {
+      font-size: 1.2em;
+      padding: 0 10px;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      color: #fff;
+      background: #FE2C55;
+      border: none;
+      border-radius: 5px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #ff5a79;
+    }
+    #wheel {
+      transition: transform 4s ease-out;
+      width: 90vw;
+      max-width: 350px;
+      height: auto;
+    }
+    #pointer {
+      width: 0; 
+      height: 0; 
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 40px solid #FE2C55;
+      position: absolute;
+      top: 10px;
+      left: calc(50% - 20px);
+      z-index: 10;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: -1;
+      background: linear-gradient(45deg, rgba(37,244,238,0.1) 25%, transparent 25%, transparent 50%, rgba(254,44,85,0.1) 50%, rgba(254,44,85,0.1) 75%, transparent 75%, transparent 100%);
+      background-size: 50px 50px;
+      animation: moveBG 5s linear infinite;
+    }
+    @keyframes moveBG {
+      from { transform: translate(0, 0); }
+      to   { transform: translate(-50px, 50px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="initial-screen">
+    <h1>Dear Intern Partner, Welcome to the TikTok Onboarding Reward Activity!</h1>
+    <p>Click the confirmation button below to participate in your onboarding reward draw. You could win up to CAD$40.</p>
+    <button id="start-button">Confirm</button>
+  </div>
+
+  <div id="wheel-screen" style="display:none;">
+    <canvas id="wheel" width="400" height="400"></canvas>
+    <div id="pointer"></div>
+  </div>
+
+  <div id="result-screen" style="display:none;">
+    <p>Congratulations! Your reward is CAD$10.</p>
+    <button id="claim-button">Confirm to Claim</button>
+  </div>
+
+  <div id="final-screen" style="display:none;">
+    <p>Please contact your personal concierge via Telegram to claim your reward. Best of luck in your new role!</p>
+  </div>
+
+  <div id="already-screen" style="display:none;">
+    <p id="already-text"></p>
+  </div>
+
+  <script>
+    function drawWheel() {
+      var canvas = document.getElementById('wheel');
+      var ctx = canvas.getContext('2d');
+      var values = [5, 10, 15, 20, 25, 30, 35, 40];
+      var num = values.length;
+      var centerX = canvas.width / 2;
+      var centerY = canvas.height / 2;
+      var radius = canvas.width / 2 - 10;
+      for (var i = 0; i < num; i++) {
+        var startAngle = (i * 2 * Math.PI / num);
+        var endAngle   = ((i + 1) * 2 * Math.PI / num);
+        // Draw segment
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fillStyle = (i % 2 === 0 ? '#FE2C55' : '#25F4EE');
+        ctx.fill();
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        // Draw text label
+        var midAngle = startAngle + (endAngle - startAngle) / 2;
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(midAngle);
+        if (midAngle > Math.PI/2 && midAngle < 3*Math.PI/2) {
+          ctx.rotate(Math.PI);
+        }
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = (i % 2 === 0 ? '#fff' : '#000');
+        ctx.font = 'bold 20px Arial';
+        ctx.fillText('CAD$' + values[i], radius * 0.65, 0);
+        ctx.restore();
+      }
+    }
+    drawWheel();
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var initialScreen = document.getElementById('initial-screen');
+      var wheelScreen   = document.getElementById('wheel-screen');
+      var resultScreen  = document.getElementById('result-screen');
+      var finalScreen   = document.getElementById('final-screen');
+      var alreadyScreen = document.getElementById('already-screen');
+      var alreadyText   = document.getElementById('already-text');
+      var startBtn      = document.getElementById('start-button');
+      var claimBtn      = document.getElementById('claim-button');
+
+      // Check localStorage for rewards
+      if (localStorage.getItem('rewardClaimed')) {
+        // Reward already claimed scenario
+        initialScreen.style.display = 'none';
+        wheelScreen.style.display   = 'none';
+        resultScreen.style.display  = 'none';
+        finalScreen.style.display   = 'none';
+        alreadyScreen.style.display = 'flex';
+        if (localStorage.getItem('rewardContacted')) {
+          alreadyText.textContent = "You've already claimed your reward.";
+        } else {
+          alreadyText.textContent = "Your reward is CAD$10. Please contact your concierge.";
+          localStorage.setItem('rewardContacted', 'true');
+        }
+      } else {
+        // First-time user flow
+        alreadyScreen.style.display = 'none';
+        finalScreen.style.display   = 'none';
+        wheelScreen.style.display   = 'none';
+        initialScreen.style.display = 'flex';
+
+        // When user clicks Confirm to start
+        startBtn.addEventListener('click', function() {
+          initialScreen.style.display = 'none';
+          wheelScreen.style.display   = 'flex';
+          // Spin the wheel (3-4 seconds)
+          setTimeout(function() {
+            var wheel = document.getElementById('wheel');
+            wheel.style.transform = 'rotate(2002.5deg)';
+          }, 100);
+          // After spinning, show result screen
+          setTimeout(function() {
+            wheelScreen.style.display  = 'none';
+            resultScreen.style.display = 'flex';
+          }, 4200);
+        });
+
+        // When user confirms to claim reward
+        claimBtn.addEventListener('click', function() {
+          resultScreen.style.display = 'none';
+          finalScreen.style.display  = 'flex';
+          localStorage.setItem('rewardClaimed', 'true');
+        });
+      }
+    });
+  </script>
+</body>
+</html>
