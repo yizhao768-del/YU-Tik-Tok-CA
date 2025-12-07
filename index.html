@@ -2,199 +2,816 @@
 <html lang="en-GB">
 <head>
   <meta charset="UTF-8">
+  <title>TikTok Onboarding Reward Wheel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TikTok Onboarding Reward Activity</title>
+
   <style>
-    body {
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      background: #000;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      text-align: center;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #f9fafb;
+      background: radial-gradient(circle at top, #1f2937 0, #020617 45%, #000000 100%);
       overflow: hidden;
+      position: relative;
     }
-    #initial-screen, #wheel-screen, #result-screen, #final-screen, #already-screen {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-    h1 {
-      color: #FE2C55;
-      font-size: 1.5em;
-      padding: 0 10px;
-    }
-    p {
-      font-size: 1.2em;
-      padding: 0 10px;
-    }
-    button {
-      padding: 15px 30px;
-      font-size: 1.2em;
-      color: #fff;
-      background: #FE2C55;
-      border: none;
-      border-radius: 5px;
-      margin-top: 20px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #ff5a79;
-    }
-    #wheel {
-      transition: transform 4s ease-out;
-      width: 90vw;
-      max-width: 350px;
-      height: auto;
-    }
-    #pointer {
-      width: 0; 
-      height: 0; 
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
-      border-bottom: 40px solid #FE2C55;
-      position: absolute;
-      top: 10px;
-      left: calc(50% - 20px);
-      z-index: 10;
-    }
+
+    /* ==== Techy animated background with TikTok colours ==== */
     body::before {
       content: "";
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: -1;
-      background: linear-gradient(45deg, rgba(37,244,238,0.1) 25%, transparent 25%, transparent 50%, rgba(254,44,85,0.1) 50%, rgba(254,44,85,0.1) 75%, transparent 75%, transparent 100%);
-      background-size: 50px 50px;
-      animation: moveBG 5s linear infinite;
+      inset: -40%;
+      background: conic-gradient(
+        from 0deg,
+        rgba(254,44,85,0.18),
+        rgba(37,244,238,0.24),
+        rgba(56,189,248,0.3),
+        rgba(254,44,85,0.22),
+        rgba(37,244,238,0.24),
+        rgba(15,23,42,0.95)
+      );
+      mix-blend-mode: screen;
+      opacity: 0.85;
+      animation: spinGlow 26s linear infinite;
+      z-index: -3;
+      pointer-events: none;
     }
-    @keyframes moveBG {
-      from { transform: translate(0, 0); }
-      to   { transform: translate(-50px, 50px); }
+
+    @keyframes spinGlow {
+      0%   { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .bg-orbs {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: -2;
+    }
+
+    .orb {
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      filter: blur(4px);
+      opacity: 0.9;
+      animation: floatOrb 18s ease-in-out infinite alternate;
+    }
+
+    .orb--pink {
+      background: radial-gradient(circle, #fe2c55 0%, rgba(254,44,85,0) 65%);
+      top: -60px;
+      left: -30px;
+    }
+
+    .orb--cyan {
+      background: radial-gradient(circle, #25f4ee 0%, rgba(37,244,238,0) 65%);
+      bottom: -100px;
+      right: -70px;
+      animation-duration: 22s;
+    }
+
+    .orb--white {
+      background: radial-gradient(circle, #ffffff 0%, rgba(255,255,255,0) 70%);
+      top: 40%;
+      left: 65%;
+      animation-duration: 28s;
+    }
+
+    @keyframes floatOrb {
+      0%   { transform: translate3d(0, 0, 0) scale(1); }
+      50%  { transform: translate3d(40px, -30px, 0) scale(1.05); }
+      100% { transform: translate3d(-30px, 40px, 0) scale(1.1); }
+    }
+
+    .grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(148,163,184,0.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148,163,184,0.18) 1px, transparent 1px);
+      background-size: 38px 38px;
+      mix-blend-mode: soft-light;
+      opacity: 0.5;
+      animation: driftGrid 35s linear infinite;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    @keyframes driftGrid {
+      0%   { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(-80px, -80px, 0); }
+    }
+
+    .scanline {
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(249,250,251,0.12) 0,
+        rgba(249,250,251,0.12) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+      mix-blend-mode: soft-light;
+      opacity: 0.22;
+      animation: scan 5s linear infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    @keyframes scan {
+      0%   { background-position: 0 0; }
+      100% { background-position: 0 120px; }
+    }
+
+    /* ==== Layout shell ==== */
+    .outer {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 10px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 720px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(15,23,42,0.96), rgba(17,24,39,0.98));
+      box-shadow:
+        0 0 0 1px rgba(148,163,184,0.5),
+        0 30px 80px rgba(0,0,0,0.9);
+      padding: 18px 16px 22px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(18px);
+      animation: cardIn 0.7s ease-out;
+      color: #f9fafb;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(254,44,85,0.3), transparent 65%);
+      pointer-events: none;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translate3d(0, 22px, 0); }
+      to   { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+
+    /* ==== Header ==== */
+    .header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .logo-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(3,7,18,0.9);
+      border: 1px solid rgba(148,163,184,0.7);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+      margin-bottom: 6px;
+    }
+
+    .logo-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fe2c55, #25f4ee);
+      box-shadow: 0 0 12px rgba(254,44,85,0.9);
+    }
+
+    .title {
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+      text-shadow: 0 0 12px rgba(0,0,0,0.9);
+    }
+
+    .title span.dot {
+      color: #fe2c55;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #d1d5f9;
+    }
+
+    /* ==== Steps ==== */
+    .step {
+      display: none;
+    }
+    .step.active {
+      display: block;
+    }
+
+    /* ==== Initial screen ==== */
+    .intro-copy {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #e5e7ff;
+    }
+
+    .primary-btn {
+      margin-top: 18px;
+      width: 100%;
+      max-width: 280px;
+      border-radius: 999px;
+      padding: 12px 16px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: linear-gradient(120deg, #fe2c55, #25f4ee);
+      color: #ffffff;
+      box-shadow:
+        0 0 0 1px rgba(248,250,252,0.4),
+        0 14px 30px rgba(0,0,0,1);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      animation: pulseBtn 1.7s ease-in-out infinite;
+    }
+
+    .primary-btn::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg,
+        rgba(255,255,255,0.5),
+        transparent,
+        rgba(255,255,255,0.5));
+      opacity: 0;
+      transform: translateX(-80%);
+      pointer-events: none;
+    }
+
+    .primary-btn:hover::before {
+      opacity: 1;
+      animation: shimmer 1.2s linear;
+    }
+
+    @keyframes shimmer {
+      0%   { transform: translateX(-80%); }
+      100% { transform: translateX(80%); }
+    }
+
+    @keyframes pulseBtn {
+      0%,100% { box-shadow: 0 14px 30px rgba(0,0,0,1); }
+      50%     { box-shadow: 0 18px 40px rgba(0,0,0,1); }
+    }
+
+    .foot-note {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #cbd5ff;
+      text-align: center;
+    }
+
+    /* ==== Wheel screen ==== */
+    .wheel-screen {
+      padding: 8px 6px 4px;
+      text-align: center;
+    }
+
+    .wheel-wrapper {
+      margin: 8px auto 10px;
+      width: min(80vw, 360px);
+      aspect-ratio: 1 / 1;
+      position: relative;
+    }
+
+    #wheelCanvas {
+      width: 100%;
+      height: 100%;
+      transition: transform 3.6s cubic-bezier(0.23, 1, 0.32, 1);
+      transform: rotate(0deg);
+    }
+
+    .wheel-pointer {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-bottom: 26px solid #f97316;
+      filter: drop-shadow(0 0 6px rgba(248,250,252,0.9));
+      z-index: 5;
+    }
+
+    .wheel-shadow {
+      position: absolute;
+      inset: 12px;
+      border-radius: 50%;
+      box-shadow:
+        0 0 0 1px rgba(15,23,42,0.9),
+        0 16px 40px rgba(0,0,0,1);
+      pointer-events: none;
+    }
+
+    .wheel-caption {
+      font-size: 0.95rem;
+      color: #e5e7ff;
+      margin-top: 6px;
+    }
+
+    /* ==== Result screen ==== */
+    .result-screen {
+      padding: 16px 4px 4px;
+      text-align: center;
+    }
+
+    .result-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.8);
+      background: rgba(15,23,42,0.9);
+      font-size: 0.86rem;
+      margin-bottom: 10px;
+    }
+
+    .result-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .result-sub {
+      font-size: 1rem;
+      color: #e5e7ff;
+      margin-bottom: 16px;
+    }
+
+    .secondary-btn {
+      border-radius: 999px;
+      border: none;
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: #f9fafb;
+      color: #020617;
+      cursor: pointer;
+      box-shadow:
+        0 0 0 1px rgba(148,163,184,0.9),
+        0 12px 26px rgba(0,0,0,1);
+    }
+
+    .secondary-btn:hover {
+      filter: brightness(0.96);
+    }
+
+    .result-message {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #dbe4ff;
+    }
+
+    /* ==== Reminder / claimed screens ==== */
+    .simple-screen {
+      padding: 20px 6px 4px;
+      text-align: center;
+      font-size: 1rem;
+      color: #e5e7ff;
+    }
+
+    .simple-screen strong {
+      font-weight: 700;
+    }
+
+    /* ==== Confetti ==== */
+    .confetti {
+      position: fixed;
+      top: -10px;
+      width: 8px;
+      height: 14px;
+      border-radius: 2px;
+      opacity: 0.95;
+      pointer-events: none;
+      z-index: 50;
+      animation: confettiFall 3.2s linear forwards;
+    }
+
+    @keyframes confettiFall {
+      0%   { transform: translate3d(0,0,0) rotateZ(0deg); }
+      100% { transform: translate3d(0,110vh,0) rotateZ(360deg); }
+    }
+
+    /* ==== Clock (Canada Eastern Time) ==== */
+    .clock {
+      position: fixed;
+      right: 10px;
+      bottom: 10px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(148,163,184,0.9);
+      font-size: 0.78rem;
+      color: #e5e7ff;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.9);
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .clock-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fe2c55, #25f4ee);
+      box-shadow: 0 0 8px rgba(254,44,85,0.9);
     }
   </style>
 </head>
 <body>
-  <div id="initial-screen">
-    <h1>Dear Intern Partner, Welcome to the TikTok Onboarding Reward Activity!</h1>
-    <p>Click the confirmation button below to participate in your onboarding reward draw. You could win up to CAD$40.</p>
-    <button id="start-button">Confirm</button>
+  <!-- Animated tech background -->
+  <div class="bg-orbs">
+    <div class="orb orb--pink"></div>
+    <div class="orb orb--cyan"></div>
+    <div class="orb orb--white"></div>
+  </div>
+  <div class="grid"></div>
+  <div class="scanline"></div>
+
+  <!-- Live Canada Eastern Time clock -->
+  <div class="clock" id="clock">
+    <div class="clock-dot"></div>
+    <span id="clockText">Canada Eastern Time: --:--:--</span>
   </div>
 
-  <div id="wheel-screen" style="display:none;">
-    <canvas id="wheel" width="400" height="400"></canvas>
-    <div id="pointer"></div>
-  </div>
+  <div class="outer">
+    <div class="card">
+      <div class="card-inner">
+        <header class="header">
+          <div class="logo-pill">
+            <div class="logo-dot"></div>
+            <span>TIKTOK ONBOARDING</span>
+          </div>
+          <h1 class="title">
+            TikTok<span class="dot"> • </span>WELCOME REWARD
+          </h1>
+          <p class="subtitle">
+            A sci-fi spin to mark the start of your journey.
+          </p>
+        </header>
 
-  <div id="result-screen" style="display:none;">
-    <p>Congratulations! Your reward is CAD$10.</p>
-    <button id="claim-button">Confirm to Claim</button>
-  </div>
+        <!-- STEP 1: Welcome screen -->
+        <section id="step-intro" class="step">
+          <p class="intro-copy">
+            Dear intern partner, welcome to the TikTok onboarding reward activity.
+            <br><br>
+            Click the confirmation button below to take part in your onboarding reward draw.
+            Your reward could be worth up to <strong>CAD$40</strong>.
+          </p>
+          <div style="text-align:center;">
+            <button id="btnStart" class="primary-btn">
+              <span>Confirm</span>
+              <span>▶</span>
+            </button>
+          </div>
+          <p class="foot-note">
+            Each person may take part in this welcome draw once only.
+          </p>
+        </section>
 
-  <div id="final-screen" style="display:none;">
-    <p>Please contact your personal concierge via Telegram to claim your reward. Best of luck in your new role!</p>
-  </div>
+        <!-- STEP 2: Wheel screen -->
+        <section id="step-wheel" class="step">
+          <div class="wheel-screen">
+            <div class="wheel-wrapper">
+              <canvas id="wheelCanvas" width="400" height="400"></canvas>
+              <div class="wheel-pointer"></div>
+              <div class="wheel-shadow"></div>
+            </div>
+            <p class="wheel-caption">
+              Tap anywhere to begin the spin. The wheel will draw your onboarding reward.
+            </p>
+          </div>
+        </section>
 
-  <div id="already-screen" style="display:none;">
-    <p id="already-text"></p>
+        <!-- STEP 3: Result screen -->
+        <section id="step-result" class="step">
+          <div class="result-screen">
+            <div class="result-badge">
+              <span>🎉</span>
+              <span>Reward reveal</span>
+            </div>
+            <h2 class="result-title">Congratulations!</h2>
+            <p class="result-sub">
+              Your onboarding reward is <strong>CAD$10</strong>.
+            </p>
+            <button id="btnConfirmReward" class="secondary-btn">
+              Confirm to claim
+            </button>
+            <p id="resultMessage" class="result-message" style="display:none;">
+              Please contact your personal concierge via Telegram to claim your reward.
+              Wishing you every success in your new role.
+            </p>
+          </div>
+        </section>
+
+        <!-- STEP 4: Second visit reminder -->
+        <section id="step-reminder" class="step">
+          <div class="simple-screen">
+            <p>
+              Your reward is <strong>CAD$10</strong>.
+              <br><br>
+              Please contact your personal concierge via Telegram to claim your reward.
+            </p>
+          </div>
+        </section>
+
+        <!-- STEP 5: Subsequent visits -->
+        <section id="step-claimed" class="step">
+          <div class="simple-screen">
+            <p>
+              You have already claimed this onboarding reward.
+              <br><br>
+              Thank you for being part of the TikTok team.
+            </p>
+          </div>
+        </section>
+      </div>
+    </div>
   </div>
 
   <script>
-    function drawWheel() {
-      var canvas = document.getElementById('wheel');
-      var ctx = canvas.getContext('2d');
-      var values = [5, 10, 15, 20, 25, 30, 35, 40];
-      var num = values.length;
-      var centerX = canvas.width / 2;
-      var centerY = canvas.height / 2;
-      var radius = canvas.width / 2 - 10;
-      for (var i = 0; i < num; i++) {
-        var startAngle = (i * 2 * Math.PI / num);
-        var endAngle   = ((i + 1) * 2 * Math.PI / num);
-        // Draw segment
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-        ctx.closePath();
-        ctx.fillStyle = (i % 2 === 0 ? '#FE2C55' : '#25F4EE');
-        ctx.fill();
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        // Draw text label
-        var midAngle = startAngle + (endAngle - startAngle) / 2;
-        ctx.save();
-        ctx.translate(centerX, centerY);
-        ctx.rotate(midAngle);
-        if (midAngle > Math.PI/2 && midAngle < 3*Math.PI/2) {
-          ctx.rotate(Math.PI);
+    // ===== Clock: Canada Eastern Time (live) =====
+    function updateClock() {
+      try {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString("en-GB", {
+          hour12: false,
+          timeZone: "America/Toronto"
+        });
+        const el = document.getElementById("clockText");
+        if (el) {
+          el.textContent = "Canada Eastern Time: " + timeString;
         }
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = (i % 2 === 0 ? '#fff' : '#000');
-        ctx.font = 'bold 20px Arial';
-        ctx.fillText('CAD$' + values[i], radius * 0.65, 0);
-        ctx.restore();
+      } catch (e) {
+        // Fallback: local time if timezone is not supported
+        const now = new Date();
+        const fallback = now.toLocaleTimeString("en-GB", { hour12: false });
+        const el = document.getElementById("clockText");
+        if (el) {
+          el.textContent = "Local Time: " + fallback;
+        }
       }
     }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // ===== State management (only once draw) =====
+    const STATE_KEY = "tiktokOnboardWheelState"; // undefined | "reminder" | "claimed"
+
+    const stepIntro    = document.getElementById("step-intro");
+    const stepWheel    = document.getElementById("step-wheel");
+    const stepResult   = document.getElementById("step-result");
+    const stepReminder = document.getElementById("step-reminder");
+    const stepClaimed  = document.getElementById("step-claimed");
+
+    function showStep(stepEl) {
+      [stepIntro, stepWheel, stepResult, stepReminder, stepClaimed].forEach(el => {
+        if (el) el.classList.remove("active");
+      });
+      if (stepEl) stepEl.classList.add("active");
+    }
+
+    // ===== Wheel drawing (Canvas) =====
+    const canvas = document.getElementById("wheelCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const values = [5, 20, 30, 10, 40, 25, 35, 15]; // 10 is at index 3
+    const icons  = ["🍵", "💻", "💄", "💳", "🎁", "🎧", "🎉", "⭐"];
+    const segCount = values.length;
+    const segAngle = (2 * Math.PI) / segCount;
+
+    function drawWheel() {
+      const w = canvas.width;
+      const h = canvas.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const radius = Math.min(w, h) / 2 - 10;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Outer glow ring
+      const outerGrad = ctx.createRadialGradient(cx, cy, radius * 0.4, cx, cy, radius);
+      outerGrad.addColorStop(0, "rgba(15,23,42,0.9)");
+      outerGrad.addColorStop(1, "rgba(148,163,184,0.8)");
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+      ctx.fillStyle = outerGrad;
+      ctx.fill();
+
+      // Segments
+      const baseAngle = -Math.PI / 2 - segAngle / 2; // so one segment centres at top
+      for (let i = 0; i < segCount; i++) {
+        const start = baseAngle + i * segAngle;
+        const end = start + segAngle;
+
+        // segment background with alternating TikTok colours
+        const grad = ctx.createLinearGradient(
+          cx + Math.cos(start) * radius,
+          cy + Math.sin(start) * radius,
+          cx + Math.cos(end) * radius,
+          cy + Math.sin(end) * radius
+        );
+        if (i % 2 === 0) {
+          grad.addColorStop(0, "#fe2c55");
+          grad.addColorStop(1, "#25f4ee");
+        } else {
+          grad.addColorStop(0, "#1e293b");
+          grad.addColorStop(1, "#0f172a");
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radius * 0.98, start, end);
+        ctx.closePath();
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // separator line
+        ctx.strokeStyle = "rgba(15,23,42,0.9)";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // tiny tick near rim
+        const tickAngle = start + segAngle / 2;
+        const tickR1 = radius * 0.8;
+        const tickR2 = radius * 0.9;
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(tickAngle) * tickR1, cy + Math.sin(tickAngle) * tickR1);
+        ctx.lineTo(cx + Math.cos(tickAngle) * tickR2, cy + Math.sin(tickAngle) * tickR2);
+        ctx.strokeStyle = "rgba(248,250,252,0.9)";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // label text + icon
+        const mid = start + segAngle / 2;
+        const labelR = radius * 0.6;
+        ctx.save();
+        ctx.translate(cx + Math.cos(mid) * labelR, cy + Math.sin(mid) * labelR);
+        ctx.rotate(mid);
+
+        // If upside-down, flip text
+        if (mid > Math.PI / 2 && mid < 3 * Math.PI / 2) {
+          ctx.rotate(Math.PI);
+        }
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = i % 2 === 0 ? "#0f172a" : "#e5e7eb";
+        ctx.font = "bold 18px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+        ctx.fillText(`${icons[i]} CAD$${values[i]}`, 0, 0);
+        ctx.restore();
+      }
+
+      // Inner disc
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * 0.38, 0, 2 * Math.PI);
+      const innerGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.38);
+      innerGrad.addColorStop(0, "#020617");
+      innerGrad.addColorStop(1, "#111827");
+      ctx.fillStyle = innerGrad;
+      ctx.fill();
+
+      // Inner glow ring
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * 0.42, 0, 2 * Math.PI);
+      ctx.strokeStyle = "rgba(148,163,184,0.85)";
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      // Centre TikTok-style mark
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * 0.06, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fe2c55";
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(cx + radius * 0.05, cy - radius * 0.02, radius * 0.05, 0, 2 * Math.PI);
+      ctx.fillStyle = "#25f4ee";
+      ctx.fill();
+    }
+
     drawWheel();
 
-    document.addEventListener('DOMContentLoaded', function() {
-      var initialScreen = document.getElementById('initial-screen');
-      var wheelScreen   = document.getElementById('wheel-screen');
-      var resultScreen  = document.getElementById('result-screen');
-      var finalScreen   = document.getElementById('final-screen');
-      var alreadyScreen = document.getElementById('already-screen');
-      var alreadyText   = document.getElementById('already-text');
-      var startBtn      = document.getElementById('start-button');
-      var claimBtn      = document.getElementById('claim-button');
+    // ===== Wheel spin logic (always lands on CAD10) =====
+    const btnStart = document.getElementById("btnStart");
+    const wheelCanvas = document.getElementById("wheelCanvas");
 
-      // Check localStorage for rewards
-      if (localStorage.getItem('rewardClaimed')) {
-        // Reward already claimed scenario
-        initialScreen.style.display = 'none';
-        wheelScreen.style.display   = 'none';
-        resultScreen.style.display  = 'none';
-        finalScreen.style.display   = 'none';
-        alreadyScreen.style.display = 'flex';
-        if (localStorage.getItem('rewardContacted')) {
-          alreadyText.textContent = "You've already claimed your reward.";
-        } else {
-          alreadyText.textContent = "Your reward is CAD$10. Please contact your concierge.";
-          localStorage.setItem('rewardContacted', 'true');
-        }
+    let hasSpun = false;
+
+    function spinWheelOnce() {
+      if (hasSpun) return;
+      hasSpun = true;
+
+      // 10 is at index 3; each segment = 45deg; at rotation 0 the pointer hits index 0;
+      // rotating clockwise by 45deg steps moves pointer to index (0 - k) mod 8.
+      // For index 3 we need k ≡ -3 ≡ 5 (mod 8) => rotation = 5 * 45 = 225deg.
+      const baseOffset = 225; // ensures CAD10 under pointer
+      const fullTurns = 4 + Math.floor(Math.random() * 2); // 4 or 5 full spins
+      const finalDeg = fullTurns * 360 + baseOffset;
+
+      wheelCanvas.style.transform = `rotate(${finalDeg}deg)`;
+
+      // After spin, show result screen and confetti
+      setTimeout(() => {
+        showStep(stepResult);
+        launchConfetti();
+      }, 3700); // slightly longer than CSS transition
+    }
+
+    // ===== Confetti =====
+    function launchConfetti() {
+      const colours = ["#fe2c55", "#25f4ee", "#ffffff", "#facc15"];
+      const pieces = 80;
+      for (let i = 0; i < pieces; i++) {
+        const c = document.createElement("div");
+        c.className = "confetti";
+        c.style.backgroundColor = colours[Math.floor(Math.random() * colours.length)];
+        c.style.left = Math.random() * 100 + "vw";
+        const delay = Math.random() * 0.7;
+        const duration = 2.4 + Math.random() * 1.1;
+        c.style.animationDelay = delay + "s";
+        c.style.animationDuration = duration + "s";
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), (duration + delay + 0.6) * 1000);
+      }
+    }
+
+    // ===== Result confirm logic & state transitions =====
+    const btnConfirmReward = document.getElementById("btnConfirmReward");
+    const resultMessage = document.getElementById("resultMessage");
+
+    function handleConfirmReward() {
+      btnConfirmReward.disabled = true;
+      resultMessage.style.display = "block";
+      // Mark that first full draw has completed; next visit will show reminder
+      localStorage.setItem(STATE_KEY, "reminder");
+    }
+
+    // ===== Initial routing based on localStorage =====
+    document.addEventListener("DOMContentLoaded", () => {
+      const state = localStorage.getItem(STATE_KEY);
+
+      if (!state) {
+        // First ever visit: normal flow
+        showStep(stepIntro);
+
+        btnStart.addEventListener("click", () => {
+          showStep(stepWheel);
+        });
+
+        // Start spin by tapping the wheel screen
+        stepWheel.addEventListener("click", spinWheelOnce);
+        btnConfirmReward.addEventListener("click", handleConfirmReward);
+      } else if (state === "reminder") {
+        // Second visit: show reward and ask to contact concierge, then mark as claimed
+        showStep(stepReminder);
+        localStorage.setItem(STATE_KEY, "claimed");
       } else {
-        // First-time user flow
-        alreadyScreen.style.display = 'none';
-        finalScreen.style.display   = 'none';
-        wheelScreen.style.display   = 'none';
-        initialScreen.style.display = 'flex';
-
-        // When user clicks Confirm to start
-        startBtn.addEventListener('click', function() {
-          initialScreen.style.display = 'none';
-          wheelScreen.style.display   = 'flex';
-          // Spin the wheel (3-4 seconds)
-          setTimeout(function() {
-            var wheel = document.getElementById('wheel');
-            wheel.style.transform = 'rotate(2002.5deg)';
-          }, 100);
-          // After spinning, show result screen
-          setTimeout(function() {
-            wheelScreen.style.display  = 'none';
-            resultScreen.style.display = 'flex';
-          }, 4200);
-        });
-
-        // When user confirms to claim reward
-        claimBtn.addEventListener('click', function() {
-          resultScreen.style.display = 'none';
-          finalScreen.style.display  = 'flex';
-          localStorage.setItem('rewardClaimed', 'true');
-        });
+        // Third and later visits: already claimed
+        showStep(stepClaimed);
       }
     });
   </script>
