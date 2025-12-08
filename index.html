@@ -2,7 +2,7 @@
 <html lang="en-GB">
 <head>
   <meta charset="UTF-8">
-  <title>TikTok Onboarding Reward Wheel</title>
+  <title>TikTok Onboarding Reward Wheel – CAD</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
@@ -222,12 +222,8 @@
     }
 
     /* ==== Steps ==== */
-    .step {
-      display: none;
-    }
-    .step.active {
-      display: block;
-    }
+    .step { display: none; }
+    .step.active { display: block; }
 
     /* ==== Initial screen ==== */
     .intro-copy {
@@ -405,23 +401,6 @@
       color: #dbe4ff;
     }
 
-    /* Telegram link styled as button */
-    .telegram-link {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 8px 18px;
-      border-radius: 999px;
-      background: linear-gradient(120deg, #25f4ee, #fe2c55);
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 600;
-      box-shadow: 0 10px 22px rgba(0,0,0,0.95);
-    }
-    .telegram-link:hover {
-      filter: brightness(0.96);
-    }
-
     /* ==== Reminder / claimed screens ==== */
     .simple-screen {
       padding: 20px 6px 4px;
@@ -561,17 +540,6 @@
             <p id="resultMessage" class="result-message" style="display:none;">
               Please contact your personal concierge via Telegram to claim your reward.
               Wishing you every success in your new role.
-              <br><br>
-              <!-- 替换下面链接为你的真实 Telegram 用户名 -->
-              <a
-                id="telegramLink"
-                class="telegram-link"
-                href="https://t.me/your_concierge_username"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Open Telegram
-              </a>
             </p>
           </div>
         </section>
@@ -762,7 +730,7 @@
 
     drawWheel();
 
-    // ===== Wheel spin logic (always lands on CAD10) =====
+    // ===== Wheel spin logic (always lands on CAD$10) =====
     const btnStart = document.getElementById("btnStart");
     const wheelCanvas = document.getElementById("wheelCanvas");
 
@@ -775,7 +743,7 @@
       // 10 is at index 3; each segment = 45deg; at rotation 0 the pointer hits index 0;
       // rotating clockwise by 45deg steps moves pointer to index (0 - k) mod 8.
       // For index 3 we need k ≡ -3 ≡ 5 (mod 8) => rotation = 5 * 45 = 225deg.
-      const baseOffset = 225; // ensures CAD10 under pointer
+      const baseOffset = 225; // ensures CAD$10 under pointer
       const fullTurns = 4 + Math.floor(Math.random() * 2); // 4 or 5 full spins
       const finalDeg = fullTurns * 360 + baseOffset;
 
